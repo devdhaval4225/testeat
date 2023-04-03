@@ -122,7 +122,7 @@ exports.update = async (req, res) => {
                         image: urls,
                         subTitle: subTitle,
                         desc: req.body.desc,
-                        price: parseInt(price),
+                        price: price,
                         tags: "#" + req.body.tags
                     },
                     {
