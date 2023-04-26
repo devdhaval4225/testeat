@@ -1,6 +1,6 @@
 const Order = require("../model/order.model");
 const Item = require("../model/item.model");
-const { count } = require("../model/user.model");
+const User = require("../model/user.model");
 
 
 exports.insert = async (req, res) => {
@@ -26,6 +26,17 @@ exports.insert = async (req, res) => {
                 const itemPrice = itemTotal.howMany * itemTotal.price
                 tPrice += itemPrice
             }
+            const userWall = req.user.wallet - tPrice
+            const updateWall = await User.findByIdAndUpdate({
+                _id: req.user.id
+            }, {
+                $set: {
+                    wallet: userWall
+                }
+            }, {
+                new: true
+            });
+
             const insertData = new Order({
                 orderId: "TO" + uniNum,
                 userId: userId,
@@ -70,11 +81,26 @@ exports.update = async (req, res) => {
         if (aaz != null) {
 
             if (itemFind.orderId == orderId) {
+
+                const userTotal = itemFind.total
+                const userWall = req.user.wallet + userTotal
+
                 var tPrice = 0;
                 for (const itemTotal of item) {
                     const itemPrice = itemTotal.howMany * itemTotal.price
                     tPrice += itemPrice
                 }
+                const updateOrder = userWall - tPrice
+
+                const updateWall = await User.findByIdAndUpdate({
+                    _id: req.user.id
+                }, {
+                    $set: {
+                        wallet: updateOrder
+                    }
+                }, {
+                    new: true
+                });
 
                 const updateData = await Order.findOneAndUpdate(
                     {
@@ -90,7 +116,7 @@ exports.update = async (req, res) => {
                         new: true
                     });
                 res.status(200).json({
-                    message: "Order Update sucessfully",
+                    message: "Order Update Sucessfully",
                     status: 200
                 })
 
